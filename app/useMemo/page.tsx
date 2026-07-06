@@ -53,7 +53,10 @@ export default function UseMemoPage() {
   const [name, setName] = useState("");
 
   const expensiveValue = useMemo(() => {
-    console.log('calculating')
+    if (typeof window !== "undefined") {
+      console.log("calculating");
+    }
+
     let result = 0;
     for (let i = 0; i < 50000; i++) {
       result += count;
