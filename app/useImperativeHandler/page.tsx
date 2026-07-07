@@ -1,26 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useImperativeHandle, useRef, useState } from "react";
 import { DemoPanel, LessonPage, LessonSection } from "../components/LessonPage";
 
-type SearchBoxProps = {
-  value: string;
-  onChange: (value: string) => void;
+type SearchBoxHandle = {
+  clear: () => void;
+  fill: () => void;
 };
 
-function SearchBox(props: SearchBoxProps) {
+type SearchBoxProps = {
+  ref: React.Ref<SearchBoxHandle>;
+};
+
+function SearchBox({ ref }: SearchBoxProps) {
+  const [text, setText] = useState("");
+
+  useImperativeHandle(ref, () => ({
+    clear() {
+      setText("");
+    },
+    fill() {
+      setText("filled");
+    },
+  }));
+
   return (
     <input
       className="min-w-64 rounded border border-zinc-300 bg-white px-3 py-2"
-      value={props.value}
-      onChange={(event) => props.onChange(event.target.value)}
+      value={text}
+      onChange={(event) => setText(event.target.value)}
       placeholder="Type something"
     />
   );
 }
 
 export default function UseImperativeHandlerPage() {
-  const [text, setText] = useState("");
+  const ref = useRef<SearchBoxHandle | null>(null);
 
   return (
     <LessonPage
@@ -30,24 +45,22 @@ export default function UseImperativeHandlerPage() {
       <LessonSection title="Search box">
         <DemoPanel>
           <div className="space-y-4">
-            <SearchBox value={text} onChange={setText} />
+            <SearchBox ref={ref} />
 
             <div className="flex flex-wrap gap-3">
               <button
                 className="rounded bg-teal-700 px-4 py-2 font-semibold text-white hover:bg-teal-800"
-                onClick={() => setText("")}
+                onClick={() => ref.current?.clear()}
               >
                 Clear
               </button>
               <button
                 className="rounded border border-teal-700 px-4 py-2 font-semibold text-teal-800 hover:bg-white"
-                onClick={() => setText("Hello")}
+                onClick={() => ref.current?.fill()}
               >
                 Fill
               </button>
             </div>
-
-            <p>Value: {text}</p>
           </div>
         </DemoPanel>
       </LessonSection>
