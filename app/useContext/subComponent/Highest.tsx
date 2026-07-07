@@ -1,13 +1,13 @@
-import { UserScore } from "../page";
+"use client";
 
-type Props = {
-  users: UserScore[];
-};
+import { useUserScoreContext } from "../context";
 
-export default function HighestScore(props: Props) {
+export default function HighestScore() {
+  const users = useUserScoreContext().descUsers;
+
   return (
     <ul>
-      {props.users.map((userScore) => (
+      {users.map((userScore) => (
         <li key={userScore.user}>
           {userScore.user}: {userScore.score}
         </li>

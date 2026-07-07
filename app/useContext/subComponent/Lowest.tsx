@@ -1,13 +1,13 @@
-import { UserScore } from "../page";
+"use client";
 
-type Props = {
-  users: UserScore[];
-};
+import { useUserScoreContext } from "../context";
 
-export default function LowestScore(props: Props) {
+export default function LowestScore() {
+  const users = useUserScoreContext().ascUsers;
+
   return (
     <ul>
-      {props.users.map((userScore) => (
+      {users.map((userScore) => (
         <li key={userScore.user}>
           {userScore.user}: {userScore.score}
         </li>
