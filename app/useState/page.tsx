@@ -28,17 +28,17 @@ export default function Demo({}: DemoProps) {
 export default function UseStatePage() {
   const [count, setCount] = useState<number>(0);
   
-  // if (count === 0) {
-  //   const [test] = useState<string>('a');
-  //   const [testB] = useState<string>('b');
-  //   console.log(test);
-  //   console.log(testB);
-  // } else {
-  //   const [testB] = useState<string>('b');
-  //   const [test] = useState<string>('a');
-  //   console.log(testB);
-  //   console.log(test);
-  // }
+  if (count === 0) {
+    const [slot1] = useState<string>('a');
+    const [slot2] = useState<string>('b');
+    console.log(slot1);
+    console.log(slot2);
+  } else {
+    const [slot1] = useState<string>('b');
+    const [slot2] = useState<string>('a');
+    console.log(slot1);
+    console.log(slot2);
+  }
 
   return (
     <LessonPage

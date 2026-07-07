@@ -25,6 +25,12 @@ export const lessons: LessonLink[] = [
     tag: "core hook",
   },
   {
+    href: "/useReducer",
+    title: "useReducer",
+    summary: "Start with a simple count before converting it to a reducer.",
+    tag: "core hook",
+  },
+  {
     href: "/useEffect",
     title: "useEffect",
     summary: "Run code after render when watched values change.",
@@ -53,6 +59,27 @@ export const lessons: LessonLink[] = [
     title: "useCallback",
     summary: "Cache function identity for memoized children or stable props.",
     tag: "performance",
+  },
+  {
+    href: "/useTransition",
+    title: "useTransition",
+    summary:
+      "Switch between simple pages and an intentionally slow posts page.",
+    tag: "performance",
+  },
+  {
+    href: "/useImperativeHandler",
+    title: "useImperativeHandle",
+    summary:
+      "Start with parent buttons and a child input before moving control into the child.",
+    tag: "advanced",
+  },
+  {
+    href: "/useContext",
+    title: "useContext",
+    summary:
+      "A guided coding session for creating context and sharing sorted score lists.",
+    tag: "context",
   },
   {
     href: "/advanced-hooks",
