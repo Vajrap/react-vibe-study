@@ -84,13 +84,21 @@ export const lessons: LessonLink[] = [
   {
     href: "/advanced-hooks",
     title: "Advanced Hooks",
-    summary: "A quick map of layout, transition, deferred, and imperative hooks.",
+    summary:
+      "A quick map of layout, transition, deferred, and imperative hooks.",
     tag: "advanced",
   },
   {
     href: "/homework",
     title: "Homework",
-    summary: "Product search practice for state, effects, cleanup, refs, and memo.",
+    summary:
+      "Product search practice for state, effects, cleanup, refs, and memo.",
+    tag: "practice",
+  },
+  {
+    href: "/homework-atom",
+    title: "Homework Atom",
+    summary: "Atom's home work",
     tag: "practice",
   },
 ];
