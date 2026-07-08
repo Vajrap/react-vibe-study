@@ -1,4 +1,5 @@
 import {
+  Chip,
   Paper,
   Stack,
   Table,
@@ -7,21 +8,53 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { useTicketContext } from "../context";
-import { Ticket } from "../types";
+import { Ticket, TicketPriority, TicketStatus } from "../types";
 
 export type TicketListProps = {
   setSelectedTicket: (ticket: Ticket) => void;
   onClose: () => void;
 };
 
+function stausChipColor(status: TicketStatus) {
+  switch (status) {
+    case "open":
+      return "info";
+    case "pending":
+      return "warning";
+    case "resolved":
+      return "success";
+  }
+}
+
+function priorityChipColor(priority: TicketPriority) {
+  switch (priority) {
+    case "high":
+      return "error";
+    case "medium":
+      return "warning";
+    case "low":
+      return "info";
+  }
+}
+
 export default function TicketList(props: TicketListProps) {
-  const { filteredTickets } = useTicketContext();
+  const { denseMode, filteredTickets, isFiltering } = useTicketContext();
+
+  if (isFiltering) {
+    return (
+      <Stack direction={"column"} sx={{ alignItems: "center", paddingTop: 20 }}>
+        <Typography variant="h5">Loading</Typography>
+        <Typography variant="h6">Please wait...</Typography>
+      </Stack>
+    );
+  }
 
   return (
     <TableContainer component={Paper}>
-      <Table size="small">
+      <Table size={denseMode ? "small" : "medium"}>
         <TableHead>
           <TableRow
             sx={{
@@ -48,8 +81,18 @@ export default function TicketList(props: TicketListProps) {
             >
               <TableCell>{ticket.customerName}</TableCell>
               <TableCell>{ticket.subject}</TableCell>
-              <TableCell>{ticket.status}</TableCell>
-              <TableCell>{ticket.priority}</TableCell>
+              <TableCell>
+                <Chip
+                  color={stausChipColor(ticket.status)}
+                  label={ticket.status}
+                ></Chip>
+              </TableCell>
+              <TableCell>
+                <Chip
+                  color={priorityChipColor(ticket.priority)}
+                  label={ticket.priority}
+                ></Chip>
+              </TableCell>
               <TableCell>{ticket.assignee}</TableCell>
             </TableRow>
           ))}

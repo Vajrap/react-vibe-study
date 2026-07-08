@@ -1,13 +1,12 @@
 import { Stack, Typography, Divider, Button } from "@mui/material";
 import { useState } from "react";
 import SettingDrawer from "./SettingDrawer";
+import { useTicketContext } from "../context";
+import { ChevronLeft } from "@mui/icons-material";
 
-export type HeaderProps = {
-  refresh: () => void;
-};
-
-export function Header(props: HeaderProps) {
+export function Header() {
   const [openSetting, setOpenSetting] = useState(false);
+  const { isRefreshing, lastRefreshTime, refresh } = useTicketContext();
 
   return (
     <Stack direction={"column"}>
@@ -15,18 +14,27 @@ export function Header(props: HeaderProps) {
         Help Desk Console
       </Typography>
       <Divider />
-      <Stack direction={"row"} spacing={2} sx={{ marginLeft: -1, paddingY: 2 }}>
+      <Stack
+        direction={"row"}
+        spacing={"auto"}
+        sx={{ paddingY: 1, paddingX: 2 }}
+      >
+        <Stack direction={"row"} sx={{ alignItems: "center" }} spacing={1}>
+          <Button onClick={refresh} variant="outlined" disabled={isRefreshing}>
+            Refresh
+          </Button>
+          {lastRefreshTime && (
+            <Typography>{`Last Refreshed Time: ${lastRefreshTime}`}</Typography>
+          )}
+        </Stack>
         <Button
           onClick={() => {
             setOpenSetting(true);
-            console.log(openSetting);
           }}
           variant="outlined"
         >
-          {`Setting >>`}
-        </Button>
-        <Button onClick={props.refresh} variant="outlined">
-          Refresh
+          <ChevronLeft />
+          {`Setting`}
         </Button>
       </Stack>
       <SettingDrawer open={openSetting} onClose={() => setOpenSetting(false)} />

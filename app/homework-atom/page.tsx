@@ -9,21 +9,19 @@ import { TicketProvider } from "./context";
 import TicketDetailModal from "./components/TicketDetailModal";
 import TicketList from "./components/TicketList";
 
+const DOCUMENT_DEFAULT_TITLE = "Homework";
+
 export default function HomeWorkPage() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isAddNewTicket, setIsAddNewTicket] = useState(false);
 
-  const [, setRefresher] = useState<number>(0);
-
-  function refresh() {
-    setRefresher((current) => current + 1);
-  }
-
   function handleSelectTicket(ticket: Ticket) {
+    document.title = ticket.subject;
     setSelectedTicket(ticket);
   }
 
   function handleCloseSelectedTicket() {
+    document.title = DOCUMENT_DEFAULT_TITLE;
     setSelectedTicket(null);
   }
 
@@ -35,7 +33,7 @@ export default function HomeWorkPage() {
           sx={{ minHeight: "100vh", width: "100%" }}
           spacing={2}
         >
-          <Header refresh={refresh} />
+          <Header />
           <FilterSection />
           <Divider />
           <Stack direction={"row"} spacing={"auto"} sx={{ paddingX: 4 }}>

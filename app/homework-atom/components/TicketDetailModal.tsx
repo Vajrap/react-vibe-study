@@ -119,7 +119,7 @@ export default function TicketDetailModal(props: TicketDeatilModalProps) {
             type="submit"
             variant="contained"
           >
-          {props.ticket.type === "exist" ? "Update" : "Save"}
+            {props.ticket.type === "exist" ? "Update" : "Save"}
           </Button>
         </DialogActions>
       </FormContainer>

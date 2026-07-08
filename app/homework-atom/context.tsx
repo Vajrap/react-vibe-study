@@ -4,8 +4,10 @@ import {
   ReactNode,
   SetStateAction,
   useContext,
+  useEffect,
   useMemo,
   useState,
+  useTransition,
 } from "react";
 import { initialTickets, Ticket, TicketPriority, TicketStatus } from "./types";
 
@@ -13,40 +15,77 @@ export const TicketContext = createContext<{
   allTickets: Ticket[];
   filteredTickets: Ticket[];
   setAllTickets: Dispatch<SetStateAction<Ticket[]>>;
+  searchText: string;
   statusFilter: TicketStatus[];
   priorityFilter: TicketPriority[];
   isApplyFilter: boolean;
   handleClearFilter: () => void;
-  handleStatusChecked: (target: TicketStatus) => void;
-  handlePriorityChecked: (target: TicketPriority) => void;
-  applyFilter: (searchText: string) => void;
+  applyFilter: (
+    searchText: string,
+    statusFilter: TicketStatus[],
+    priorityFilter: TicketPriority[],
+  ) => void;
+  isFiltering: boolean;
+  lastRefreshTime: string | null;
+  refresh: () => void;
+  denseMode: boolean;
+  setDenseMode: Dispatch<SetStateAction<boolean>>;
+  showResolvedTickets: boolean;
+  setShowResolvedTickets: Dispatch<SetStateAction<boolean>>;
+  refreshTimeInterval: number;
+  setRefreshTimeInterval: Dispatch<SetStateAction<number>>;
+  isRefreshing: boolean;
 } | null>(null);
+
+function formatTime(date: Date) {
+  return date.toLocaleTimeString("en-US", {
+    hour12: false,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
 
 export function TicketProvider({ children }: { children: ReactNode }) {
   const [allTickets, setAllTickets] = useState<Ticket[]>(initialTickets);
   const [statusFilter, setStatusFilter] = useState<TicketStatus[]>([]);
   const [priorityFilter, setPriorityFilter] = useState<TicketPriority[]>([]);
-  const [appliedStatusFilter, setAppliedStatusFilter] = useState<
-    TicketStatus[]
-  >([]);
-  const [appliedPriorityFilter, setAppliedPriorityFilter] = useState<
-    TicketPriority[]
-  >([]);
   const [searchText, setSearchText] = useState("");
   const [isApplyFilter, setIsApplyFilter] = useState<boolean>(false);
+  const [, startTransition] = useTransition();
+  const [isFiltering, setIsFiltering] = useState(false);
+  const [lastRefreshTime, setLastRefreshTime] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [denseMode, setDenseMode] = useState(true);
+  const [showResolvedTickets, setShowResolvedTickets] = useState(false);
+  const [refreshTimeInterval, setRefreshTimeInterval] = useState(30);
 
-  const showAllStatus = appliedStatusFilter.length === 0;
-  const showAllPriority = appliedPriorityFilter.length === 0;
+  useEffect(() => {
+    const id = setInterval(() => {
+      refresh();
+    }, refreshTimeInterval * 1000);
+
+    return () => {
+      clearInterval(id);
+    };
+  }, [refreshTimeInterval]);
+
+  const showAllStatus = statusFilter.length === 0;
+  const showAllPriority = priorityFilter.length === 0;
 
   const filteredTickets = useMemo(() => {
     const normalizedSearchText = searchText.toLowerCase();
 
     return allTickets.filter((ticket) => {
+      const matchesSetting = showResolvedTickets
+        ? true
+        : ticket.status !== "resolved";
+
       const matchesStatus =
-        showAllStatus || appliedStatusFilter.includes(ticket.status);
+        showAllStatus || statusFilter.includes(ticket.status);
 
       const matchesPriority =
-        showAllPriority || appliedPriorityFilter.includes(ticket.priority);
+        showAllPriority || priorityFilter.includes(ticket.priority);
 
       const matchesSearch =
         normalizedSearchText === "" ||
@@ -57,45 +96,52 @@ export function TicketProvider({ children }: { children: ReactNode }) {
           note.toLowerCase().includes(normalizedSearchText),
         );
 
-      return matchesStatus && matchesPriority && matchesSearch;
+      return (
+        matchesSetting && matchesStatus && matchesPriority && matchesSearch
+      );
     });
   }, [
     allTickets,
-    appliedPriorityFilter,
-    appliedStatusFilter,
+    priorityFilter,
     searchText,
+    showResolvedTickets,
     showAllPriority,
     showAllStatus,
+    statusFilter,
   ]);
 
   function handleClearFilter() {
     setStatusFilter([]);
     setPriorityFilter([]);
-    setAppliedStatusFilter([]);
-    setAppliedPriorityFilter([]);
     setSearchText("");
     setIsApplyFilter(false);
   }
 
-  function toggleFilter<T>(previous: T[], target: T) {
-    return previous.includes(target)
-      ? previous.filter((item) => item !== target)
-      : [...previous, target];
+  function applyFilter(
+    nextSearchText: string,
+    nextStatusFilter: TicketStatus[],
+    nextPriorityFilter: TicketPriority[],
+  ) {
+    setIsFiltering(true);
+
+    setTimeout(() => {
+      startTransition(() => {
+        setStatusFilter(nextStatusFilter);
+        setPriorityFilter(nextPriorityFilter);
+        setSearchText(nextSearchText);
+        setIsApplyFilter(true);
+        setIsFiltering(false);
+      });
+    }, 1000);
   }
 
-  function handleStatusChecked(target: TicketStatus) {
-    setStatusFilter((previous) => toggleFilter(previous, target));
-  }
+  function refresh() {
+    setIsRefreshing(true);
 
-  function handlePriorityChecked(target: TicketPriority) {
-    setPriorityFilter((previous) => toggleFilter(previous, target));
-  }
-
-  function applyFilter(nextSearchText: string) {
-    setAppliedStatusFilter(statusFilter);
-    setAppliedPriorityFilter(priorityFilter);
-    setSearchText(nextSearchText);
-    setIsApplyFilter(true);
+    setTimeout(() => {
+      setLastRefreshTime(formatTime(new Date()));
+      setIsRefreshing(false);
+    }, 1000);
   }
 
   return (
@@ -104,13 +150,22 @@ export function TicketProvider({ children }: { children: ReactNode }) {
         allTickets,
         setAllTickets,
         filteredTickets,
+        searchText,
         statusFilter,
         priorityFilter,
         isApplyFilter,
         handleClearFilter,
-        handleStatusChecked,
-        handlePriorityChecked,
         applyFilter,
+        isFiltering,
+        lastRefreshTime,
+        refresh,
+        denseMode,
+        setDenseMode,
+        showResolvedTickets,
+        setShowResolvedTickets,
+        refreshTimeInterval,
+        setRefreshTimeInterval,
+        isRefreshing,
       }}
     >
       {children}
