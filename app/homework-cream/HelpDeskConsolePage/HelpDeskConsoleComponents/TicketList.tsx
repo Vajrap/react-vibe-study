@@ -1,23 +1,24 @@
 "use client"
 
 import { Box, Stack, Typography, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
-import { useRef, useEffect, useTransition, useMemo, useState } from "react";
-import { useHelpDeskSettings, Ticket, TicketCountsByStatus, TicketFilters } from "../context";
+import { useRef, useEffect, useTransition, useMemo, useState, useCallback } from "react";
+import { useHelpDeskSettings } from "../context";
 import FilterBar from "./FilterBar";
+import { Ticket, TicketCountsByStatus, TicketFilters } from "./types";
 
 interface TicketListProps {
     tickets: Ticket[],
-    handleSelectTicket: (ticketId: number) => void
+    onSelectTicket: (ticketId: number) => void
 }
 
-export default function TicketList({ tickets, handleSelectTicket }: TicketListProps) {
+export default function TicketList({ tickets, onSelectTicket }: TicketListProps) {
     const [filters, setFilters] = useState<TicketFilters>({
         searchText: "",
         statusFilter: "all",
         priorityFilter: "all",
     });
 
-    const { denseMode, showResolvedTickets, setShowResolvedTickets } = useHelpDeskSettings();
+    const { denseMode, showResolvedTickets } = useHelpDeskSettings();
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [isPending, startTransition] = useTransition();
 
@@ -70,14 +71,13 @@ export default function TicketList({ tickets, handleSelectTicket }: TicketListPr
         );
     }, [filters, showResolvedTickets, tickets]);
 
-    function onClearFilters() {
+    const onClearFilters = useCallback(() => {
         setFilters({
             searchText: "",
             statusFilter: "all",
             priorityFilter: "all",
-        });
-        setShowResolvedTickets(true);
-    }
+        })
+    }, []);
 
     return (
         <Box sx={{ p: 3 }}>
@@ -86,7 +86,7 @@ export default function TicketList({ tickets, handleSelectTicket }: TicketListPr
                 <Typography variant="body2">Pending: {ticketCountsByStatus.pending}</Typography>
                 <Typography variant="body2">Resolved: {ticketCountsByStatus.resolved}</Typography>
             </Stack>
-            <FilterBar inputRef={inputRef} onClearFilters={onClearFilters} filters={filters} setFilters={setFilters}/>
+            <FilterBar inputRef={inputRef} onClearFilters={onClearFilters} filters={filters} setFilters={setFilters} />
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} size={denseMode ? "small" : "medium"} aria-label="simple table">
                     <TableHead>
@@ -106,7 +106,7 @@ export default function TicketList({ tickets, handleSelectTicket }: TicketListPr
                         ) : null}
                         {filteredTickets.map((ticket: Ticket) => (
                             <TableRow
-                                onClick={() => handleSelectTicket(ticket.id)}
+                                onClick={() => onSelectTicket(ticket.id)}
                                 hover
                                 key={ticket.id}
                                 sx={{ cursor: 'pointer', '&:last-child td, &:last-child th': { border: 0 } }}

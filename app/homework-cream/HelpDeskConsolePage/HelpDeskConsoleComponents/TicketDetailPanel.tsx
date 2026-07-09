@@ -1,7 +1,6 @@
 import { Paper, Stack, Typography, FormControl, InputLabel, Select, SelectChangeEvent, MenuItem, Box, TextField, Button } from "@mui/material";
-import { useState, useRef, useEffect, Dispatch, SetStateAction } from "react";
-import { TicketStatus, Ticket } from "../context";
-
+import { useState, useRef, useEffect, Dispatch, SetStateAction, useCallback } from "react";
+import { Ticket, TicketStatus } from "./types";
 
 interface TicketDetailPanelProps {
   selectedTicket: Ticket | null,
@@ -14,9 +13,9 @@ export default function TicketDetailPanel({ selectedTicket, setTickets }: Ticket
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [selectedTicket?.notes, selectedTicket?.id]);
+  }, [selectedTicket?.id]);
 
-  function addTicketNote(ticketId: number, note: string) {
+  function onAddNote(ticketId: number, note: string) {
     setTickets((currentTickets) =>
       currentTickets.map((ticket) =>
         ticket.id === ticketId
@@ -33,8 +32,9 @@ export default function TicketDetailPanel({ selectedTicket, setTickets }: Ticket
       return;
     }
 
-    addTicketNote(selectedTicket.id, note);
+    onAddNote(selectedTicket.id, note);
     setNewNoteText("");
+    inputRef.current?.focus();
   }
 
   function changeTicketStatus(ticketId: number, status: TicketStatus) {
@@ -44,7 +44,6 @@ export default function TicketDetailPanel({ selectedTicket, setTickets }: Ticket
       ),
     );
   }
-
 
   return (<>
     {selectedTicket ? <Paper sx={{ p: 3, m: 3 }}>

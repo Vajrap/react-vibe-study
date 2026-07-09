@@ -16,7 +16,7 @@ interface HeaderProps {
 }
 
 export default function Header({ refreshTickets, isRefreshing }: HeaderProps) {
-  const { openSettings, refreshIntervalLabel } =useHelpDeskSettings();
+  const { openSettings, refreshIntervalLabel } = useHelpDeskSettings();
 
   return (
     <Box>

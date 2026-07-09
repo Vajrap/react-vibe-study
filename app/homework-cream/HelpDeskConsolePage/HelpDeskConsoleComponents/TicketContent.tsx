@@ -3,14 +3,14 @@
 import Box from "@mui/material/Box"
 import TicketList from "./TicketList"
 import { useCallback, useMemo, useState } from "react";
-import { initialTickets, Ticket } from "../context";
 import TicketDetailPanel from "./TicketDetailPanel";
+import { Ticket, initialTickets } from "./types";
 
 export default function TicketContent() {
     const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
     const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
 
-    const handleSelectTicket = useCallback(
+    const onSelectTicket = useCallback(
         (ticketId: number) => {
             setSelectedTicketId(ticketId);
         }, []);
@@ -28,7 +28,7 @@ export default function TicketContent() {
                 gap: 3,
             }}
         >
-            <TicketList tickets={tickets} handleSelectTicket={handleSelectTicket} />
+            <TicketList tickets={tickets} onSelectTicket={onSelectTicket} />
             <TicketDetailPanel selectedTicket={selectedTicket} setTickets={setTickets} />
         </Box>
     )

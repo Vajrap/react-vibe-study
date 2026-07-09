@@ -8,8 +8,8 @@ import Paper from "@mui/material/Paper";
 import Select from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import { Dispatch, RefObject } from "react";
-import { TicketFilters } from "../context";
+import { Dispatch, memo, RefObject } from "react";
+import { TicketFilters } from "./types";
 
 interface FilterBarProps {
   inputRef: RefObject<HTMLInputElement | null>;
@@ -18,13 +18,13 @@ interface FilterBarProps {
   setFilters: Dispatch<TicketFilters>
 }
 
-export default function FilterBar({
+function FilterBar({
   inputRef,
   onClearFilters,
   filters,
   setFilters
 }: FilterBarProps) {
-
+  
   function handleFilters(newFilters: TicketFilters) {
     setFilters(newFilters);
   }
@@ -80,3 +80,5 @@ export default function FilterBar({
     </Paper>
   );
 }
+
+export default memo(FilterBar);
