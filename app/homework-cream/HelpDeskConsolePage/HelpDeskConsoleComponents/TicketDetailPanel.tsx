@@ -1,0 +1,111 @@
+import { Paper, Stack, Typography, FormControl, InputLabel, Select, SelectChangeEvent, MenuItem, Box, TextField, Button } from "@mui/material";
+import { useState, useRef, useEffect, Dispatch, SetStateAction } from "react";
+import { useHelpDeskSettings, TicketStatus, Ticket } from "../context";
+
+
+interface TicketDetailPanelProps {
+  selectedTicket: Ticket | null,
+  isSelectTicket: boolean,
+  setTickets: Dispatch<SetStateAction<Ticket[]>>
+}
+
+export default function TicketDetailPanel({ selectedTicket, isSelectTicket, setTickets }: TicketDetailPanelProps) {
+  const [newNoteText, setNewNoteText] = useState("");
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  
+  useEffect(() => {
+    if (isSelectTicket) {
+      inputRef.current?.focus();
+    }
+  }, [isSelectTicket]);
+
+  function addTicketNote(ticketId: number, note: string) {
+    setTickets((currentTickets) =>
+      currentTickets.map((ticket) =>
+        ticket.id === ticketId
+          ? { ...ticket, notes: [...ticket.notes, note] }
+          : ticket,
+      ),
+    );
+  }
+
+  function handleAddNote() {
+    const note = newNoteText.trim();
+
+    if (!note || !selectedTicket) {
+      return;
+    }
+
+    addTicketNote(selectedTicket.id, note);
+    setNewNoteText("");
+  }
+
+  function changeTicketStatus(ticketId: number, status: TicketStatus) {
+    setTickets((currentTickets) =>
+      currentTickets.map((ticket) =>
+        ticket.id === ticketId ? { ...ticket, status } : ticket,
+      ),
+    );
+  }
+
+  
+  return (<>
+    {selectedTicket ? <Paper sx={{ p: 3, m: 3 }}>
+      <Stack spacing={2}>
+        <Typography variant="h6">selectedTicket detail</Typography>
+        <Typography variant="h5">{selectedTicket.subject}</Typography>
+        <Typography>Customer: {selectedTicket.customerName}</Typography>
+        <Typography>Last message: {selectedTicket.lastMessage}</Typography>
+        <Typography>Created date: {new Date(selectedTicket.createdAt).toLocaleString()}</Typography>
+
+        <FormControl fullWidth>
+          <InputLabel>Status</InputLabel>
+          <Select
+            label="Status"
+            value={selectedTicket.status}
+            onChange={(event: SelectChangeEvent) =>
+              changeTicketStatus(selectedTicket.id, event.target.value as TicketStatus)
+            }
+          >
+            <MenuItem value="open">Open</MenuItem>
+            <MenuItem value="pending">Pending</MenuItem>
+            <MenuItem value="resolved">Resolved</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Box>
+          <Typography variant="subtitle1">Notes</Typography>
+          {selectedTicket.notes.length === 0 ? (
+            <Typography color="text.secondary">No notes yet.</Typography>
+          ) : (
+            selectedTicket.notes.map((note, index) => (
+              <Typography key={`${note}-${index}`}>- {note}</Typography>
+            ))
+          )}
+        </Box>
+
+        <TextField
+          label="New internal note"
+          value={newNoteText}
+          onChange={(event) => setNewNoteText(event.target.value)}
+          multiline
+          minRows={3}
+          fullWidth
+          inputRef={inputRef}
+        />
+
+        <Button variant="contained" onClick={handleAddNote}>
+          Add note
+        </Button>
+      </Stack>
+    </Paper>
+      :
+      <><Paper sx={{ p: 3, m: 3 }}>
+        <Typography variant="h6">Ticket detail</Typography>
+        <Typography color="text.secondary">Select a ticket to view detail.</Typography>
+      </Paper>
+      </>
+    }
+  </>
+  );
+}
