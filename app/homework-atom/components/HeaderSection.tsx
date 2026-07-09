@@ -6,7 +6,7 @@ import { ChevronLeft } from "@mui/icons-material";
 
 export function Header() {
   const [openSetting, setOpenSetting] = useState(false);
-  const { isRefreshing, lastRefreshTime, refresh } = useTicketContext();
+  const { isRefreshing, lastRefreshSecondsAgo, refresh } = useTicketContext();
 
   return (
     <Stack direction={"column"}>
@@ -17,14 +17,16 @@ export function Header() {
       <Stack
         direction={"row"}
         spacing={"auto"}
-        sx={{ paddingY: 1, paddingX: 2 }}
+        sx={{ paddingY: 1, paddingX: 4 }}
       >
         <Stack direction={"row"} sx={{ alignItems: "center" }} spacing={1}>
           <Button onClick={refresh} variant="outlined" disabled={isRefreshing}>
             Refresh
           </Button>
-          {lastRefreshTime && (
-            <Typography>{`Last Refreshed Time: ${lastRefreshTime}`}</Typography>
+          {lastRefreshSecondsAgo !== null && (
+            <Typography>
+              {`Last refreshed ${lastRefreshSecondsAgo} seconds ago`}
+            </Typography>
           )}
         </Stack>
         <Button

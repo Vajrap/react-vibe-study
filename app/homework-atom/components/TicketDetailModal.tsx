@@ -16,6 +16,7 @@ import {
 
 import { Ticket } from "../types";
 import { useTicketContext } from "../context";
+import { useEffect, useRef } from "react";
 
 export type OpenType = { type: "new" } | { type: "exist"; ticket: Ticket };
 
@@ -44,6 +45,11 @@ export default function TicketDetailModal(props: TicketDeatilModalProps) {
     defaultValues:
       props.ticket.type === "exist" ? props.ticket.ticket : formDefaultValues(),
   });
+  const noteInput = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    noteInput.current?.focus();
+  }, [noteInput]);
 
   function handleSave() {
     const values = form.getValues();
@@ -87,6 +93,7 @@ export default function TicketDetailModal(props: TicketDeatilModalProps) {
               label="Notes"
               multiline
               minRows={3}
+              inputRef={noteInput}
             />
             <ToggleButtonGroupElement
               name="status"

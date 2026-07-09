@@ -11,6 +11,37 @@ import {
 } from "react";
 import { initialTickets, Ticket, TicketPriority, TicketStatus } from "./types";
 
+type SettingOptions = {
+  denseMode: boolean;
+  showResolvedTickets: boolean;
+  refreshTimeInterval: number;
+};
+
+const defaultSetting: SettingOptions = {
+  denseMode: true,
+  showResolvedTickets: false,
+  refreshTimeInterval: 30,
+};
+
+const SAVED_SETTING_KEY = "react-homework-setting";
+
+function getInitialSettings(): SettingOptions {
+  if (typeof window === "undefined") {
+    return defaultSetting;
+  }
+
+  const savedSetting = window.localStorage.getItem(SAVED_SETTING_KEY);
+  if (!savedSetting) {
+    return defaultSetting;
+  }
+
+  try {
+    return { ...defaultSetting, ...JSON.parse(savedSetting) };
+  } catch {
+    return defaultSetting;
+  }
+}
+
 export const TicketContext = createContext<{
   allTickets: Ticket[];
   filteredTickets: Ticket[];
@@ -26,7 +57,7 @@ export const TicketContext = createContext<{
     priorityFilter: TicketPriority[],
   ) => void;
   isFiltering: boolean;
-  lastRefreshTime: string | null;
+  lastRefreshSecondsAgo: number | null;
   refresh: () => void;
   denseMode: boolean;
   setDenseMode: Dispatch<SetStateAction<boolean>>;
@@ -37,15 +68,6 @@ export const TicketContext = createContext<{
   isRefreshing: boolean;
 } | null>(null);
 
-function formatTime(date: Date) {
-  return date.toLocaleTimeString("en-US", {
-    hour12: false,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-}
-
 export function TicketProvider({ children }: { children: ReactNode }) {
   const [allTickets, setAllTickets] = useState<Ticket[]>(initialTickets);
   const [statusFilter, setStatusFilter] = useState<TicketStatus[]>([]);
@@ -54,11 +76,11 @@ export function TicketProvider({ children }: { children: ReactNode }) {
   const [isApplyFilter, setIsApplyFilter] = useState<boolean>(false);
   const [, startTransition] = useTransition();
   const [isFiltering, setIsFiltering] = useState(false);
-  const [lastRefreshTime, setLastRefreshTime] = useState<string | null>(null);
+  const [lastRefreshAt, setLastRefreshAt] = useState<number | null>(null);
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [denseMode, setDenseMode] = useState(true);
-  const [showResolvedTickets, setShowResolvedTickets] = useState(false);
-  const [refreshTimeInterval, setRefreshTimeInterval] = useState(30);
+  const [settings, setSettings] = useState<SettingOptions>(getInitialSettings);
+  const { denseMode, showResolvedTickets, refreshTimeInterval } = settings;
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -70,8 +92,57 @@ export function TicketProvider({ children }: { children: ReactNode }) {
     };
   }, [refreshTimeInterval]);
 
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+
+    return () => {
+      clearInterval(id);
+    };
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(SAVED_SETTING_KEY, JSON.stringify(settings));
+  }, [settings]);
+
+  function setDenseMode(value: SetStateAction<boolean>) {
+    setSettings((previous) => ({
+      ...previous,
+      denseMode:
+        typeof value === "function" ? value(previous.denseMode) : value,
+    }));
+  }
+
+  function setShowResolvedTickets(value: SetStateAction<boolean>) {
+    setSettings((previous) => ({
+      ...previous,
+      showResolvedTickets:
+        typeof value === "function"
+          ? value(previous.showResolvedTickets)
+          : value,
+    }));
+  }
+
+  function setRefreshTimeInterval(value: SetStateAction<number>) {
+    setSettings((previous) => ({
+      ...previous,
+      refreshTimeInterval:
+        typeof value === "function"
+          ? value(previous.refreshTimeInterval)
+          : value,
+    }));
+  }
+
   const showAllStatus = statusFilter.length === 0;
   const showAllPriority = priorityFilter.length === 0;
+  const lastRefreshSecondsAgo = useMemo(() => {
+    if (lastRefreshAt === null) {
+      return null;
+    }
+
+    return Math.max(0, Math.floor((currentTime - lastRefreshAt) / 1000));
+  }, [currentTime, lastRefreshAt]);
 
   const filteredTickets = useMemo(() => {
     const normalizedSearchText = searchText.toLowerCase();
@@ -139,7 +210,7 @@ export function TicketProvider({ children }: { children: ReactNode }) {
     setIsRefreshing(true);
 
     setTimeout(() => {
-      setLastRefreshTime(formatTime(new Date()));
+      setLastRefreshAt(Date.now());
       setIsRefreshing(false);
     }, 1000);
   }
@@ -157,7 +228,7 @@ export function TicketProvider({ children }: { children: ReactNode }) {
         handleClearFilter,
         applyFilter,
         isFiltering,
-        lastRefreshTime,
+        lastRefreshSecondsAgo,
         refresh,
         denseMode,
         setDenseMode,

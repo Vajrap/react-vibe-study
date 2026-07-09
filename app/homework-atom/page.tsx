@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Divider, Paper, Stack, Typography } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Ticket } from "./types";
 import FilterSection from "./components/FilterSection";
 import { Header } from "./components/HeaderSection";
@@ -11,12 +11,19 @@ import TicketList from "./components/TicketList";
 
 const DOCUMENT_DEFAULT_TITLE = "Homework";
 
-export default function HomeWorkPage() {
+export default function HelpDeskConsolePage() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isAddNewTicket, setIsAddNewTicket] = useState(false);
 
+  useEffect(() => {
+    if (selectedTicket) {
+      document.title = selectedTicket.subject;
+    } else {
+      document.title = DOCUMENT_DEFAULT_TITLE;
+    }
+  }, [selectedTicket]);
+
   function handleSelectTicket(ticket: Ticket) {
-    document.title = ticket.subject;
     setSelectedTicket(ticket);
   }
 

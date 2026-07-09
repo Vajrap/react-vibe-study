@@ -22,6 +22,7 @@ export default function SettingDrawer(props: SettingDrawerProps) {
     setShowResolvedTickets,
     refreshTimeInterval,
     setRefreshTimeInterval,
+    lastRefreshSecondsAgo,
   } = useTicketContext();
 
   return (
@@ -60,6 +61,12 @@ export default function SettingDrawer(props: SettingDrawerProps) {
         </Stack>
 
         <Stack spacing={1}>
+          <Typography>Last Refresh</Typography>
+          <Typography color="text.secondary">
+            {lastRefreshSecondsAgo === null
+              ? "Not refreshed yet"
+              : `${lastRefreshSecondsAgo} seconds ago`}
+          </Typography>
           <Typography>Refresh interval</Typography>
           <Typography color="text.secondary">
             {refreshTimeInterval} seconds
