@@ -1,23 +1,20 @@
 import { Paper, Stack, Typography, FormControl, InputLabel, Select, SelectChangeEvent, MenuItem, Box, TextField, Button } from "@mui/material";
 import { useState, useRef, useEffect, Dispatch, SetStateAction } from "react";
-import { useHelpDeskSettings, TicketStatus, Ticket } from "../context";
+import { TicketStatus, Ticket } from "../context";
 
 
 interface TicketDetailPanelProps {
   selectedTicket: Ticket | null,
-  isSelectTicket: boolean,
   setTickets: Dispatch<SetStateAction<Ticket[]>>
 }
 
-export default function TicketDetailPanel({ selectedTicket, isSelectTicket, setTickets }: TicketDetailPanelProps) {
+export default function TicketDetailPanel({ selectedTicket, setTickets }: TicketDetailPanelProps) {
   const [newNoteText, setNewNoteText] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
-  
+
   useEffect(() => {
-    if (isSelectTicket) {
-      inputRef.current?.focus();
-    }
-  }, [isSelectTicket]);
+    inputRef.current?.focus();
+  }, [selectedTicket?.notes, selectedTicket?.id]);
 
   function addTicketNote(ticketId: number, note: string) {
     setTickets((currentTickets) =>
@@ -48,11 +45,11 @@ export default function TicketDetailPanel({ selectedTicket, isSelectTicket, setT
     );
   }
 
-  
+
   return (<>
     {selectedTicket ? <Paper sx={{ p: 3, m: 3 }}>
       <Stack spacing={2}>
-        <Typography variant="h6">selectedTicket detail</Typography>
+        <Typography variant="h6">Ticket Details</Typography>
         <Typography variant="h5">{selectedTicket.subject}</Typography>
         <Typography>Customer: {selectedTicket.customerName}</Typography>
         <Typography>Last message: {selectedTicket.lastMessage}</Typography>

@@ -5,13 +5,12 @@ import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import {
-  HelpDeskSettingsProvider,
-  useHelpDeskSettings,
+  HelpDeskSettingsProvider
 } from "./context";
 import TicketContent from "./HelpDeskConsoleComponents/TicketContent";
 import SettingsDrawer from "./HelpDeskConsoleComponents/SettingsDrawer";
 import Header from "./HelpDeskConsoleComponents/Header";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function HelpDeskConsolePage() {
   return (
@@ -22,12 +21,7 @@ export default function HelpDeskConsolePage() {
 }
 
 function HelpDeskConsoleContent() {
-  const { setRefreshIntervalSeconds } = useHelpDeskSettings();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  // const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
-  // const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [denseMode, setDenseMode] = useState(false);
 
   useEffect(() => {
     if (!isRefreshing) {

@@ -70,7 +70,6 @@ export default function TicketList({ tickets, handleSelectTicket }: TicketListPr
         );
     }, [filters, showResolvedTickets, tickets]);
 
-
     function onClearFilters() {
         setFilters({
             searchText: "",

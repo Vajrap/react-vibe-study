@@ -9,15 +9,11 @@ import TicketDetailPanel from "./TicketDetailPanel";
 export default function TicketContent() {
     const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
     const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
-    const [isSelectTicket, setIsSelectTicket] = useState(false)
 
     const handleSelectTicket = useCallback(
         (ticketId: number) => {
-            setIsSelectTicket(true)
             setSelectedTicketId(ticketId);
-        },
-        [setSelectedTicketId],
-    );
+        }, []);
 
     const selectedTicket = useMemo(
         () => tickets.find((ticket) => ticket.id === selectedTicketId) ?? null,
@@ -33,7 +29,7 @@ export default function TicketContent() {
             }}
         >
             <TicketList tickets={tickets} handleSelectTicket={handleSelectTicket} />
-            <TicketDetailPanel selectedTicket={selectedTicket} isSelectTicket={isSelectTicket} setTickets={setTickets} />
+            <TicketDetailPanel selectedTicket={selectedTicket} setTickets={setTickets} />
         </Box>
     )
 }
