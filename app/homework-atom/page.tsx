@@ -1,13 +1,12 @@
 "use client";
 
-import { Button, Divider, Paper, Stack, Typography } from "@mui/material";
+import { Button, Divider, Paper, Stack } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Ticket } from "./types";
-import FilterSection from "./components/FilterSection";
 import { Header } from "./components/HeaderSection";
 import { TicketProvider } from "./context";
 import TicketDetailModal from "./components/TicketDetailModal";
-import TicketList from "./components/TicketList";
+import TicketListAndFilter from "./components/TicketListAndFilter";
 
 const DOCUMENT_DEFAULT_TITLE = "Homework";
 
@@ -23,8 +22,14 @@ export default function HelpDeskConsolePage() {
     }
   }, [selectedTicket]);
 
-  function handleSelectTicket(ticket: Ticket) {
-    setSelectedTicket(ticket);
+  function handleAddNewTicket() {
+    document.title = "New Ticket";
+    setIsAddNewTicket(true);
+  }
+
+  function handleCloseAddNewTicket() {
+    document.title = DOCUMENT_DEFAULT_TITLE;
+    setIsAddNewTicket(false);
   }
 
   function handleCloseSelectedTicket() {
@@ -41,33 +46,20 @@ export default function HelpDeskConsolePage() {
           spacing={2}
         >
           <Header />
-          <FilterSection />
+          <Button onClick={handleAddNewTicket}>Add New Ticket</Button>
           <Divider />
-          <Stack direction={"row"} spacing={"auto"} sx={{ paddingX: 4 }}>
-            <Typography variant="h5">All Tickets</Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => setIsAddNewTicket(true)}
-            >
-              Add New Ticket+
-            </Button>
-          </Stack>
-          <TicketList
-            setSelectedTicket={handleSelectTicket}
-            onClose={handleCloseSelectedTicket}
-          />
+          <TicketListAndFilter setSelectedTicket={setSelectedTicket} />
           {/*Modals*/}
           {selectedTicket && (
             <TicketDetailModal
               ticket={{ ticket: selectedTicket, type: "exist" }}
-              onClose={() => setSelectedTicket(null)}
+              onClose={handleCloseSelectedTicket}
             />
           )}
           {isAddNewTicket && (
             <TicketDetailModal
               ticket={{ type: "new" }}
-              onClose={() => setIsAddNewTicket(false)}
+              onClose={handleCloseAddNewTicket}
             />
           )}
         </Stack>

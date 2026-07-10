@@ -101,4 +101,10 @@ export const lessons: LessonLink[] = [
     summary: "Atom's home work",
     tag: "practice",
   },
+  {
+    href: "/homework-cream/HelpDeskConsolePage",
+    title: "Homework Cream",
+    summary: "Cream's home work",
+    tag: "practice",
+  },
 ];

@@ -7,9 +7,8 @@ import {
   useEffect,
   useMemo,
   useState,
-  useTransition,
 } from "react";
-import { initialTickets, Ticket, TicketPriority, TicketStatus } from "./types";
+import { initialTickets, Ticket } from "./types";
 
 type SettingOptions = {
   denseMode: boolean;
@@ -44,19 +43,7 @@ function getInitialSettings(): SettingOptions {
 
 export const TicketContext = createContext<{
   allTickets: Ticket[];
-  filteredTickets: Ticket[];
   setAllTickets: Dispatch<SetStateAction<Ticket[]>>;
-  searchText: string;
-  statusFilter: TicketStatus[];
-  priorityFilter: TicketPriority[];
-  isApplyFilter: boolean;
-  handleClearFilter: () => void;
-  applyFilter: (
-    searchText: string,
-    statusFilter: TicketStatus[],
-    priorityFilter: TicketPriority[],
-  ) => void;
-  isFiltering: boolean;
   lastRefreshSecondsAgo: number | null;
   refresh: () => void;
   denseMode: boolean;
@@ -70,12 +57,6 @@ export const TicketContext = createContext<{
 
 export function TicketProvider({ children }: { children: ReactNode }) {
   const [allTickets, setAllTickets] = useState<Ticket[]>(initialTickets);
-  const [statusFilter, setStatusFilter] = useState<TicketStatus[]>([]);
-  const [priorityFilter, setPriorityFilter] = useState<TicketPriority[]>([]);
-  const [searchText, setSearchText] = useState("");
-  const [isApplyFilter, setIsApplyFilter] = useState<boolean>(false);
-  const [, startTransition] = useTransition();
-  const [isFiltering, setIsFiltering] = useState(false);
   const [lastRefreshAt, setLastRefreshAt] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -134,8 +115,6 @@ export function TicketProvider({ children }: { children: ReactNode }) {
     }));
   }
 
-  const showAllStatus = statusFilter.length === 0;
-  const showAllPriority = priorityFilter.length === 0;
   const lastRefreshSecondsAgo = useMemo(() => {
     if (lastRefreshAt === null) {
       return null;
@@ -143,68 +122,6 @@ export function TicketProvider({ children }: { children: ReactNode }) {
 
     return Math.max(0, Math.floor((currentTime - lastRefreshAt) / 1000));
   }, [currentTime, lastRefreshAt]);
-
-  const filteredTickets = useMemo(() => {
-    const normalizedSearchText = searchText.toLowerCase();
-
-    return allTickets.filter((ticket) => {
-      const matchesSetting = showResolvedTickets
-        ? true
-        : ticket.status !== "resolved";
-
-      const matchesStatus =
-        showAllStatus || statusFilter.includes(ticket.status);
-
-      const matchesPriority =
-        showAllPriority || priorityFilter.includes(ticket.priority);
-
-      const matchesSearch =
-        normalizedSearchText === "" ||
-        ticket.customerName.toLowerCase().includes(normalizedSearchText) ||
-        ticket.subject.toLowerCase().includes(normalizedSearchText) ||
-        ticket.lastMessage.toLowerCase().includes(normalizedSearchText) ||
-        ticket.notes.some((note) =>
-          note.toLowerCase().includes(normalizedSearchText),
-        );
-
-      return (
-        matchesSetting && matchesStatus && matchesPriority && matchesSearch
-      );
-    });
-  }, [
-    allTickets,
-    priorityFilter,
-    searchText,
-    showResolvedTickets,
-    showAllPriority,
-    showAllStatus,
-    statusFilter,
-  ]);
-
-  function handleClearFilter() {
-    setStatusFilter([]);
-    setPriorityFilter([]);
-    setSearchText("");
-    setIsApplyFilter(false);
-  }
-
-  function applyFilter(
-    nextSearchText: string,
-    nextStatusFilter: TicketStatus[],
-    nextPriorityFilter: TicketPriority[],
-  ) {
-    setIsFiltering(true);
-
-    setTimeout(() => {
-      startTransition(() => {
-        setStatusFilter(nextStatusFilter);
-        setPriorityFilter(nextPriorityFilter);
-        setSearchText(nextSearchText);
-        setIsApplyFilter(true);
-        setIsFiltering(false);
-      });
-    }, 1000);
-  }
 
   function refresh() {
     setIsRefreshing(true);
@@ -220,14 +137,6 @@ export function TicketProvider({ children }: { children: ReactNode }) {
       value={{
         allTickets,
         setAllTickets,
-        filteredTickets,
-        searchText,
-        statusFilter,
-        priorityFilter,
-        isApplyFilter,
-        handleClearFilter,
-        applyFilter,
-        isFiltering,
         lastRefreshSecondsAgo,
         refresh,
         denseMode,

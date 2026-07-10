@@ -26,16 +26,16 @@ export default function Demo({}: DemoProps) {
 }`;
 
 export default function UseStatePage() {
-  const [count, setCount] = useState<number>(0);
-  
+  const [count, setCount] = useState<number>(0); //1
+
   if (count === 0) {
-    const [slot1] = useState<string>('a');
-    const [slot2] = useState<string>('b');
+    const [slot1] = useState<string>("a"); //2
+    const [slot2] = useState<string>("b"); //3
     console.log(slot1);
     console.log(slot2);
   } else {
-    const [slot1] = useState<string>('b');
-    const [slot2] = useState<string>('a');
+    const [slot1] = useState<string>("b"); //2
+    const [slot2] = useState<string>("a"); //3
     console.log(slot1);
     console.log(slot2);
   }
