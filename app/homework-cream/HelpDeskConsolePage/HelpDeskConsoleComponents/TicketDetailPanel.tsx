@@ -1,5 +1,5 @@
 import { Paper, Stack, Typography, FormControl, InputLabel, Select, SelectChangeEvent, MenuItem, Box, TextField, Button } from "@mui/material";
-import { useState, useRef, useEffect, Dispatch, SetStateAction, useCallback } from "react";
+import { useState, useRef, useEffect, Dispatch, SetStateAction } from "react";
 import { Ticket, TicketStatus } from "./types";
 
 interface TicketDetailPanelProps {

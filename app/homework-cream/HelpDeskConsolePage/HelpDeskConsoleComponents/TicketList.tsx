@@ -50,7 +50,7 @@ export default function TicketList({ tickets, onSelectTicket }: TicketListProps)
         }
 
         let filteredTickets: Ticket[] = [];
-        startTransition(() => {
+        startTransition(() => { // Howwwwww
             filteredTickets = tickets.filter((ticket) => {
                 const matchesSearch =
                     !normalizedSearchText ||
@@ -100,9 +100,13 @@ export default function TicketList({ tickets, onSelectTicket }: TicketListProps)
                     </TableHead>
                     <TableBody>
                         {isPending ? (
-                            <p className="text-sm font-semibold text-teal-800">
-                                Switching page...
-                            </p>
+                            <TableRow>
+                                <TableCell colSpan={5}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Updating...
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
                         ) : null}
                         {filteredTickets.map((ticket: Ticket) => (
                             <TableRow
