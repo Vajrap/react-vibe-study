@@ -13,8 +13,8 @@ type HelpDeskSettingsContextValue = {
   settingsOpen: boolean;
   denseMode: boolean;
   refreshIntervalSeconds: number;
-  refreshIntervalLabel: string;
   showResolvedTickets: boolean;
+  lastRefreshLabel: string;
   openSettings: () => void;
   closeSettings: () => void;
   setDenseMode: (value: boolean) => void;
@@ -34,29 +34,44 @@ export function HelpDeskSettingsProvider({
   const [denseMode, setDenseMode] = useState(false);
   const [showResolvedTickets, setShowResolvedTickets] = useState(true);
   const [refreshIntervalSeconds, setRefreshIntervalSeconds] = useState(5);
-  const [refreshIntervalLabel, setRefreshIntervalLabel] = useState(
-    `Last refreshed 1 second ago`,
-  );
+  // const [refreshIntervalLabel, setRefreshIntervalLabel] = useState(
+  //   `Last refreshed 1 second ago`,
+  // );
+  const [secondsSinceLastRefresh, setSecondsSinceLastRefresh] = useState(0);
+  const lastRefreshLabel = `Last refreshed ${secondsSinceLastRefresh} ${
+    secondsSinceLastRefresh === 1 ? "second" : "seconds"
+  } ago`;
 
   useEffect(() => {
     const id = setInterval(() => {
-      const label = `Last refreshed ${refreshIntervalSeconds} seconds ago`;
-      setRefreshIntervalLabel(label);
-      console.log(label);
-    }, refreshIntervalSeconds * 1000);
+      setSecondsSinceLastRefresh((currentSeconds) => currentSeconds + 1);
+    }, 1000);
 
     return () => {
-      console.log("cleaning up refresh interval");
+      console.log("cleaning up refresh label interval");
       clearInterval(id);
     };
-  }, [refreshIntervalSeconds]);
+  }, []);
+
+  // useEffect(() => {
+  //   const id = setInterval(() => {
+  //     const label = `Last refreshed ${refreshIntervalSeconds} seconds ago`;
+  //     setRefreshIntervalLabel(label);
+  //     console.log(label);
+  //   }, refreshIntervalSeconds * 1000);
+
+  //   return () => {
+  //     console.log("cleaning up refresh interval");
+  //     clearInterval(id);
+  //   };
+  // }, [refreshIntervalSeconds]);
 
   const value: HelpDeskSettingsContextValue = {
     settingsOpen,
     denseMode,
     refreshIntervalSeconds,
-    refreshIntervalLabel,
     showResolvedTickets,
+    lastRefreshLabel,
     openSettings: () => setSettingsOpen(true),
     closeSettings: () => setSettingsOpen(false),
     setDenseMode,

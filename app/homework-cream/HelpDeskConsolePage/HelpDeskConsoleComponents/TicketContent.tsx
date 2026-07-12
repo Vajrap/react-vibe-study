@@ -2,9 +2,9 @@
 
 import Box from "@mui/material/Box"
 import TicketList from "./TicketList"
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import TicketDetailPanel from "./TicketDetailPanel";
-import { Ticket, initialTickets } from "./types";
+import { Ticket, TicketStatus, initialTickets } from "./types";
 
 export default function TicketContent() {
     const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
@@ -20,6 +20,33 @@ export default function TicketContent() {
         [selectedTicketId, tickets],
     );
 
+    const onChangeStatus = useCallback((ticketId: number, status: TicketStatus) => {
+        setTickets((currentTickets) =>
+            currentTickets.map((ticket) =>
+                ticket.id === ticketId ? { ...ticket, status } : ticket,
+            ),
+        );
+    }, []);
+
+    const onAddNote = useCallback((ticketId: number, note: string) => {
+        setTickets((currentTickets) =>
+            currentTickets.map((ticket) =>
+                ticket.id === ticketId
+                    ? { ...ticket, notes: [...ticket.notes, note] }
+                    : ticket,
+            ),
+        );
+    }, []);
+
+    useEffect(() => {
+        if (selectedTicket) {
+            document.title = `${selectedTicket.subject} | HelpDesk Console`;
+            return;
+        }
+
+        document.title = "HelpDesk Console";
+    }, [selectedTicket]);
+
     return (
         <Box
             sx={{
@@ -29,7 +56,7 @@ export default function TicketContent() {
             }}
         >
             <TicketList tickets={tickets} onSelectTicket={onSelectTicket} />
-            <TicketDetailPanel selectedTicket={selectedTicket} setTickets={setTickets} />
+            <TicketDetailPanel selectedTicket={selectedTicket} onChangeStatus={onChangeStatus} onAddNote={onAddNote} />
         </Box>
     )
 }

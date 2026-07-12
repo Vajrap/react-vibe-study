@@ -1,29 +1,20 @@
 import { Paper, Stack, Typography, FormControl, InputLabel, Select, SelectChangeEvent, MenuItem, Box, TextField, Button } from "@mui/material";
-import { useState, useRef, useEffect, Dispatch, SetStateAction } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Ticket, TicketStatus } from "./types";
 
 interface TicketDetailPanelProps {
   selectedTicket: Ticket | null,
-  setTickets: Dispatch<SetStateAction<Ticket[]>>
+  onChangeStatus: (ticketId: number, status: TicketStatus) => void,
+  onAddNote: (ticketId: number, note: string) => void
 }
 
-export default function TicketDetailPanel({ selectedTicket, setTickets }: TicketDetailPanelProps) {
+export default function TicketDetailPanel({ selectedTicket, onChangeStatus, onAddNote }: TicketDetailPanelProps) {
   const [newNoteText, setNewNoteText] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, [selectedTicket?.id]);
-
-  function onAddNote(ticketId: number, note: string) {
-    setTickets((currentTickets) =>
-      currentTickets.map((ticket) =>
-        ticket.id === ticketId
-          ? { ...ticket, notes: [...ticket.notes, note] }
-          : ticket,
-      ),
-    );
-  }
 
   function handleAddNote() {
     const note = newNoteText.trim();
@@ -35,14 +26,6 @@ export default function TicketDetailPanel({ selectedTicket, setTickets }: Ticket
     onAddNote(selectedTicket.id, note);
     setNewNoteText("");
     inputRef.current?.focus();
-  }
-
-  function changeTicketStatus(ticketId: number, status: TicketStatus) {
-    setTickets((currentTickets) =>
-      currentTickets.map((ticket) =>
-        ticket.id === ticketId ? { ...ticket, status } : ticket,
-      ),
-    );
   }
 
   return (<>
@@ -60,7 +43,7 @@ export default function TicketDetailPanel({ selectedTicket, setTickets }: Ticket
             label="Status"
             value={selectedTicket.status}
             onChange={(event: SelectChangeEvent) =>
-              changeTicketStatus(selectedTicket.id, event.target.value as TicketStatus)
+              onChangeStatus(selectedTicket.id, event.target.value as TicketStatus)
             }
           >
             <MenuItem value="open">Open</MenuItem>

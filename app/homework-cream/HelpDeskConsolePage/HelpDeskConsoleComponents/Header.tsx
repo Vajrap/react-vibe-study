@@ -16,7 +16,7 @@ interface HeaderProps {
 }
 
 export default function Header({ refreshTickets, isRefreshing }: HeaderProps) {
-  const { openSettings, refreshIntervalLabel } = useHelpDeskSettings();
+  const { openSettings, lastRefreshLabel } = useHelpDeskSettings();
 
   return (
     <Box>
@@ -48,7 +48,7 @@ export default function Header({ refreshTickets, isRefreshing }: HeaderProps) {
               Help Desk Console
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.8 }}>
-              {refreshIntervalLabel}
+              {lastRefreshLabel}
             </Typography>
           </Box>
 
