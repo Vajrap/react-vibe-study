@@ -68,6 +68,18 @@ export const lessons: LessonLink[] = [
     tag: "performance",
   },
   {
+    href: "/suspense",
+    title: "Suspense",
+    summary: "Show a fallback while lazy code or supported data becomes ready.",
+    tag: "async UI",
+  },
+  {
+    href: "/activity",
+    title: "Activity",
+    summary: "Hide UI, clean up Effects, and restore its preserved state.",
+    tag: "React 19.2",
+  },
+  {
     href: "/useImperativeHandler",
     title: "useImperativeHandle",
     summary:
@@ -106,5 +118,11 @@ export const lessons: LessonLink[] = [
     title: "Homework Cream",
     summary: "Cream's home work",
     tag: "practice",
+  },
+  {
+    href: "/javascript",
+    title: "JavaScript Foundations",
+    summary: "An 18-lesson working programmer's course on JavaScript runtime behavior.",
+    tag: "javascript",
   },
 ];

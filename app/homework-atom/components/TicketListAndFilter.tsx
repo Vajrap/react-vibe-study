@@ -35,6 +35,14 @@ export default function TicketListAndFilter({ setSelectedTicket }: Props) {
   const showAllStatus = statusFilter.length === 0;
   const showAllPriority = priorityFilter.length === 0;
 
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
   function handleSearchChange(value: string) {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -49,14 +57,6 @@ export default function TicketListAndFilter({ setSelectedTicket }: Props) {
       searchTimeoutRef.current = null;
     }, 1000);
   }
-
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const filteredTickets = useMemo(() => {
     const normalizedSearchInput = searchInput.toLowerCase();

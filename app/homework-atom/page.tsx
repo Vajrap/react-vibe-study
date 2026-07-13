@@ -1,68 +1,138 @@
 "use client";
 
-import { Button, Divider, Paper, Stack } from "@mui/material";
-import { useEffect, useState } from "react";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Paper,
+  Stack,
+} from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
 import { Ticket } from "./types";
-import { Header } from "./components/HeaderSection";
+import { Header, HeaderActions } from "./components/HeaderSection";
 import { TicketProvider } from "./context";
-import TicketDetailModal from "./components/TicketDetailModal";
+import TicketDetailPanel, { OpenType } from "./components/TicketDetailPanel";
 import TicketListAndFilter from "./components/TicketListAndFilter";
 
 const DOCUMENT_DEFAULT_TITLE = "Homework";
 
 export default function HelpDeskConsolePage() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [isAddNewTicket, setIsAddNewTicket] = useState(false);
+  const [isAddNewTicket, setIsAddNewTicket] = useState(true);
+  const [isDetailDirty, setIsDetailDirty] = useState(false);
+  const [pendingTicket, setPendingTicket] = useState<OpenType | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   useEffect(() => {
-    if (selectedTicket) {
+    if (isAddNewTicket) {
+      document.title = "New Ticket";
+    } else if (selectedTicket) {
       document.title = selectedTicket.subject;
     } else {
       document.title = DOCUMENT_DEFAULT_TITLE;
     }
-  }, [selectedTicket]);
+  }, [isAddNewTicket, selectedTicket]);
 
-  function handleAddNewTicket() {
-    document.title = "New Ticket";
-    setIsAddNewTicket(true);
+  const openTicket = useCallback((ticket: OpenType) => {
+    if (ticket.type === "new") {
+      setSelectedTicket(null);
+      setIsAddNewTicket(true);
+    } else {
+      setSelectedTicket(ticket.ticket);
+      setIsAddNewTicket(false);
+    }
+
+    setIsDetailDirty(false);
+  }, []);
+
+  function handleOpenTicket(ticket: OpenType) {
+    if (isDetailDirty) {
+      setPendingTicket(ticket);
+      setIsConfirmOpen(true);
+      return;
+    }
+
+    openTicket(ticket);
   }
 
-  function handleCloseAddNewTicket() {
-    document.title = DOCUMENT_DEFAULT_TITLE;
-    setIsAddNewTicket(false);
+  function handleConfirmDiscard() {
+    if (pendingTicket) {
+      openTicket(pendingTicket);
+    }
+
+    setPendingTicket(null);
+    setIsConfirmOpen(false);
   }
 
-  function handleCloseSelectedTicket() {
-    document.title = DOCUMENT_DEFAULT_TITLE;
-    setSelectedTicket(null);
+  function handleCancelDiscard() {
+    setPendingTicket(null);
+    setIsConfirmOpen(false);
   }
+
+  const openPanel: OpenType | null = isAddNewTicket
+    ? { type: "new" }
+    : selectedTicket
+      ? { type: "exist", ticket: selectedTicket }
+      : null;
 
   return (
     <TicketProvider>
       <Paper square sx={{ minHeight: "100vh", width: "100%" }}>
-        <Stack
-          direction={"column"}
-          sx={{ minHeight: "100vh", width: "100%" }}
-          spacing={2}
-        >
-          <Header />
-          <Button onClick={handleAddNewTicket}>Add New Ticket</Button>
-          <Divider />
-          <TicketListAndFilter setSelectedTicket={setSelectedTicket} />
-          {/*Modals*/}
-          {selectedTicket && (
-            <TicketDetailModal
-              ticket={{ ticket: selectedTicket, type: "exist" }}
-              onClose={handleCloseSelectedTicket}
+        <Header />
+        <Stack direction={"row"}>
+          <Stack
+            direction={"column"}
+            sx={{ minHeight: "100vh", width: "100%" }}
+            spacing={2}
+          >
+            <Divider />
+            <TicketListAndFilter
+              setSelectedTicket={(ticket) =>
+                handleOpenTicket({ type: "exist", ticket })
+              }
             />
-          )}
-          {isAddNewTicket && (
-            <TicketDetailModal
-              ticket={{ type: "new" }}
-              onClose={handleCloseAddNewTicket}
-            />
-          )}
+          </Stack>
+          {/*Panel*/}
+          <Stack sx={{ alignItems: "flex-end", padding: 2 }} spacing={2}>
+            <Stack
+              direction={"row"}
+              spacing={1}
+              sx={{ alignItems: "center", justifyContent: "flex-end" }}
+            >
+              <HeaderActions />
+              <Button
+                disabled={isAddNewTicket}
+                onClick={() => handleOpenTicket({ type: "new" })}
+                variant="contained"
+              >
+                Add New Ticket
+              </Button>
+            </Stack>
+            {openPanel && (
+              <TicketDetailPanel
+                key={openPanel.type === "new" ? "new" : openPanel.ticket.id}
+                ticket={openPanel}
+                onDirtyChange={setIsDetailDirty}
+              />
+            )}
+          </Stack>
         </Stack>
+        <Dialog open={isConfirmOpen}>
+          <DialogTitle>Are you sure want to discard this change?</DialogTitle>
+          <DialogContentText sx={{ paddingX: 3 }}>
+            You are about to discard the changes you made in this ticket. The
+            data will be lost. Are you sure?
+          </DialogContentText>
+          <DialogActions>
+            <Stack direction={"row"}>
+              <Button onClick={handleCancelDiscard}>Cancel</Button>
+              <Button onClick={handleConfirmDiscard}>Confirm</Button>
+            </Stack>
+          </DialogActions>
+        </Dialog>
       </Paper>
     </TicketProvider>
   );
