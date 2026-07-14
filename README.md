@@ -2,19 +2,16 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies once, then start the Next.js app and the lesson API together:
 
 ```bash
+pnpm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The command also starts an Express API on port 4000. Requests from the app to `/api/*` are automatically forwarded to it.
+
+The API creates and seeds its local SQLite database automatically. No database setup command is required. To restore the original lesson data, send a `POST` request to `/api/dev/reset`.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

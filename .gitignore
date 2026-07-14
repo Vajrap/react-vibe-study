@@ -20,6 +20,9 @@
 # production
 /build
 
+# local lesson API database
+/server/data/*.db*
+
 # misc
 .DS_Store
 *.pem
