@@ -5,14 +5,15 @@ import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import {
-  HelpDeskSettingsProvider
+  HelpDeskSettingsProvider,
+  useHelpDeskSettings
 } from "./context";
 import TicketContent from "./HelpDeskConsoleComponents/TicketContent";
 import SettingsDrawer from "./HelpDeskConsoleComponents/SettingsDrawer";
 import Header from "./HelpDeskConsoleComponents/Header";
-import { useEffect, useState } from "react";
 
 export default function HelpDeskConsolePage() {
+  // The state in context.ts will only be reset when HelpDeskSettingsProvider is unmounted and then remounted.
   return (
     <HelpDeskSettingsProvider>
       <HelpDeskConsoleContent />
@@ -21,42 +22,11 @@ export default function HelpDeskConsolePage() {
 }
 
 function HelpDeskConsoleContent() {
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  useEffect(() => {
-    if (!isRefreshing) {
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      setIsRefreshing(false);
-      console.log("refresh finished");
-    }, 1000);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [isRefreshing]);
-
-  function refreshTickets() {
-    setIsRefreshing(true);
-    console.log("refresh started");
-
-    // TOOD: Enable them
-    // setTickets(initialTickets);
-    // setSelectedTicketId(null);
-    // setSearchText("");
-    // setStatusFilter("all");
-    // setPriorityFilter("all");
-    // setSettingsOpen(false);
-    // setDenseMode(false);
-    // setShowResolvedTickets(true);
-    // setRefreshIntervalSeconds(5);
-  }
+  const { isRefreshing, setIsRefreshingState } = useHelpDeskSettings();
 
   return (
     <>
-      <Header refreshTickets={refreshTickets} isRefreshing={isRefreshing} />
+      <Header refreshTickets={() => setIsRefreshingState(true)} isRefreshing={isRefreshing} />
       {isRefreshing ? <Paper
         sx={{
           minHeight: "100vh",

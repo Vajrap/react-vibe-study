@@ -5,10 +5,13 @@ import TicketList from "./TicketList"
 import { useCallback, useEffect, useMemo, useState } from "react";
 import TicketDetailPanel from "./TicketDetailPanel";
 import { Ticket, TicketStatus, initialTickets } from "./types";
+import { Alert, Snackbar } from "@mui/material";
 
 export default function TicketContent() {
     const [tickets, setTickets] = useState<Ticket[]>(initialTickets);
     const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [open, setOpen] = useState(false);
 
     const onSelectTicket = useCallback(
         (ticketId: number) => {
@@ -26,6 +29,8 @@ export default function TicketContent() {
                 ticket.id === ticketId ? { ...ticket, status } : ticket,
             ),
         );
+        setOpen(true)
+        setSnackbarMessage("Ticket status updated");
     }, []);
 
     const onAddNote = useCallback((ticketId: number, note: string) => {
@@ -36,7 +41,15 @@ export default function TicketContent() {
                     : ticket,
             ),
         );
+        setOpen(true)
+        setSnackbarMessage("Internal note added");
     }, []);
+
+    const handleCloseSnackbar = useCallback(
+        () => {
+            setOpen(false)
+        }, []
+    )
 
     useEffect(() => {
         if (selectedTicket) {
@@ -57,6 +70,15 @@ export default function TicketContent() {
         >
             <TicketList tickets={tickets} onSelectTicket={onSelectTicket} />
             <TicketDetailPanel selectedTicket={selectedTicket} onChangeStatus={onChangeStatus} onAddNote={onAddNote} />
+            <Snackbar
+                open={open}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+            >
+                <Alert severity="success" variant="filled" onClose={handleCloseSnackbar} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     )
 }
