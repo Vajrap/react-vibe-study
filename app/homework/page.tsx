@@ -5,6 +5,7 @@ import {
   LessonPage,
   LessonSection,
 } from "../components/LessonPage";
+import { Stack } from "@mui/material";
 
 const dataCode = `type Product = {
   id: number;

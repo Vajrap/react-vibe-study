@@ -1,8 +1,11 @@
 import { Stack, Typography, Divider, Button } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import SettingDrawer from "./SettingDrawer";
 import { ChevronLeft } from "@mui/icons-material";
 import { useTicketContext } from "../context";
+import { Ticket } from "../types";
+
+const GET_TICKETS_API = "/api/tickets";
 
 export function Header() {
   return (
@@ -16,11 +19,28 @@ export function Header() {
 }
 
 export function HeaderActions() {
+  const { setAllTickets } = useTicketContext();
+
   const [openSetting, setOpenSetting] = useState(false);
   const [lastRefreshAt, setLastRefreshAt] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { refreshTimeInterval } = useTicketContext();
+
+  const refresh = useCallback(async () => {
+    setIsRefreshing(true);
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch(GET_TICKETS_API);
+      const tickets: Ticket[] = await response.json();
+
+      setAllTickets(tickets);
+      setLastRefreshAt(Date.now());
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [setAllTickets]);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -40,16 +60,7 @@ export function HeaderActions() {
     return () => {
       clearInterval(id);
     };
-  }, [refreshTimeInterval]);
-
-  function refresh() {
-    setIsRefreshing(true);
-
-    setTimeout(() => {
-      setLastRefreshAt(Date.now());
-      setIsRefreshing(false);
-    }, 1000);
-  }
+  }, [refresh, refreshTimeInterval]);
 
   const lastRefreshSecondsAgo = useMemo(() => {
     if (lastRefreshAt === null) {
