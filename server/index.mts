@@ -22,8 +22,13 @@ import {
 
 const app = express();
 const port = 4000;
+const apiDelayMs = 1_000;
 const statuses = new Set<TicketStatus>(["open", "pending", "resolved"]);
 const priorities = new Set<TicketPriority>(["low", "medium", "high"]);
+
+app.use("/api", (_request, _response, next) => {
+  setTimeout(next, apiDelayMs);
+});
 
 app.use(express.json());
 
