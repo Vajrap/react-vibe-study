@@ -33,15 +33,25 @@ export function HelpDeskSettingsProvider({
 }: {
   children: ReactNode;
 }) {
+  const localStorageName = "helpdesk-settings";
+  const savedSettings = getSavedSettings();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [denseMode, setDenseMode] = useState(false);
-  const [showResolvedTickets, setShowResolvedTickets] = useState(true);
-  const [refreshIntervalSeconds, setRefreshIntervalSeconds] = useState(5);
-  const [secondsSinceLastRefresh, setSecondsSinceLastRefresh] = useState(0);
-  const lastRefreshLabel = `Last refreshed ${secondsSinceLastRefresh} ${
-    secondsSinceLastRefresh === 1 ? "second" : "seconds"
-  } ago`;
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [denseMode, setDenseMode] = useState(
+    () => savedSettings.denseMode ?? false,
+  );
+  const [showResolvedTickets, setShowResolvedTickets] = useState(
+    () => savedSettings.showResolvedTickets ?? true,
+  );
+  const [refreshIntervalSeconds, setRefreshIntervalSeconds] = useState(
+    () => savedSettings.refreshIntervalSeconds ?? 5,
+  );
+  const [secondsSinceLastRefresh, setSecondsSinceLastRefresh] = useState(
+    () => savedSettings.secondsSinceLastRefresh ?? 0,
+  );
+  const [lastRefreshLabel] = useState(`Last refreshed ${secondsSinceLastRefresh} ${
+    secondsSinceLastRefresh === 1 ? "second" : "seconds"
+  } ago`)
 
   // Refresh data
   useEffect(() => {
@@ -67,7 +77,7 @@ export function HelpDeskSettingsProvider({
     }
 
     const id = window.setInterval(() => {
-      setSecondsSinceLastRefresh((currentSeconds) => currentSeconds + 1);
+      setSecondsSinceLastRefresh((currentSeconds: number) => currentSeconds + 1);
     }, 1000);
 
     return () => {
@@ -90,6 +100,36 @@ export function HelpDeskSettingsProvider({
       console.log("refresh finished");
     }, 1000);
   }
+
+  // Local Storage
+  function getSavedSettings() {
+    if (typeof window === "undefined") {
+      return {};
+    }
+
+    try {
+      return JSON.parse(localStorage.getItem(localStorageName) ?? "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  useEffect(() => {
+    localStorage.setItem(
+      localStorageName,
+      JSON.stringify({
+        denseMode,
+        showResolvedTickets,
+        refreshIntervalSeconds,
+        secondsSinceLastRefresh,
+      }),
+    );
+  }, [
+    denseMode,
+    showResolvedTickets,
+    refreshIntervalSeconds,
+    secondsSinceLastRefresh,
+  ]);
 
   const value: HelpDeskSettingsContextValue = {
     settingsOpen,
